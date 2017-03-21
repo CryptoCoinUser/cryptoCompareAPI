@@ -36,46 +36,52 @@
   <div class="js-ledger">
   <form>
     <table>
-      <tr>
-        <th>Token
-           <select>
-            <option>Add Token</option>
-            <option>Bitcoin <span class="apiName">BTC</span></option>
-            <option>Ethereum <span class="apiName">ETH</span></option>
-            <option>DASH <span class="apiName">DASH</span></option>
-            <option>ZCash <span class="apiName">ZEC</span></option>
-          </select>
-        </th>
-        <th>Qty</th>
-        <th>Price
-           <select>
-            <option>Price in..</option>
-            <option  selected>USD</option>
-            <option>EUR</option>
-            <option>Bitcoin BTC</option>
-            <option>Ethereum ETH</option>
-            <option>DASH</option>
-            <option>ZCash</option>
-          </select>
-        </th>
-        <th>Total</th>
-      </tr>
-      <tr class="asset BTC">
-        <td class="token">Bitcoin <span class="apiName">BTC</span> <a href="#" class="delete">delete</a></td>
-        <td class="qty">0.5</td>
-        <td class="price">1000 USD</td>
-        <td class="total">500 USD</td>
-      </tr>
-      <tr class="asset DASH">
-        <td class="token">DASH <span class="apiName">DASH</span> <a href="#" class="delete">delete</a></td>
-        <td class="qty">2</td>
-        <td class="price">100 USD</td>
-        <td class="total">200 USD</td>
-      </tr>
-      <tr class="grandTotal">
-        <td colspan="3">Grand Total:</td>
-        <td class="grandTotal">700 USD</td>
-      </tr>
+      <thead>
+        <tr>
+          <th class="coin">Coin
+             <select class="coin">
+              <option>Add Coin</option>
+              <option>Bitcoin <span class="apiName">BTC</span></option>
+              <option>Ethereum <span class="apiName">ETH</span></option>
+              <option>DASH <span class="apiName">DASH</span></option>
+              <option>ZCash <span class="apiName">ZEC</span></option>
+            </select>
+          </th>
+          <th class="qty">Qty</th>
+          <th class="priceIn">Price In
+             <select class="priceIn">
+              <option>Price in..</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="BTC">Bitcoin</option>
+              <option value="ETH">Ethereum</option>
+              <option value="DASH">DASH</option>
+              <option value="ZEC">ZCash</option>
+            </select>
+          </th>
+          <th class="total">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="asset BTC">
+          <td class="coin">Bitcoin <span class="apiName">BTC</span> <a href="#" class="delete">delete</a></td>
+          <td class="qty">0.5</td>
+          <td class="price">TBA</td>
+          <td class="total">TBA</td>
+        </tr>
+        <tr class="asset DASH">
+          <td class="coin">DASH <span class="apiName">DASH</span> <a href="#" class="delete">delete</a></td>
+          <td class="qty">2</td>
+          <td class="price">TBA</td>
+          <td class="total">TBA</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="grandTotal">
+          <td colspan="3">Grand Total:</td>
+          <td class="grandTotal">TBA</td>
+        </tr>
+      </tfoot>
     </table>
     </form>
   </div>
