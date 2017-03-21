@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Avram's Crypto Compare</title>
+  <style>
+  * {box-sizing: border-box;}
+  body{padding:50px;}
+  .js-search-results article{float:left; text-align: center; 
+    padding:15px;
+    width:33.3%;
+    background-color: #eee;
+    margin:15px 0;
+  }
+  article strong{display: block; height: 2em;}
+  article a.channel{display: block; text-decoration: none;}
+  form section{margin-bottom: 2em;}
+  button{font-size:22px;}
+
+  tr:nth-child(odd){background-color: #eee;}
+  th, td{
+    vertical-align: text-top;
+    padding:5px;
+  }
+  td a.delete{float:right; display: block;}
+  td[colspan="3"]{text-align: right;}
+  .apiName{font-style: italic; font-size: 0.8em;}
+  </style>
+</head>
+<body>
+  <header>
+   <h1>Avram's Crypto Compare</h1>
+  </header>
+  <main>
+  <div class="js-ledger">
+  <form>
+    <table>
+      <tr>
+        <th>Token
+           <select>
+            <option>Add Token</option>
+            <option>Bitcoin <span class="apiName">BTC</span></option>
+            <option>Ethereum <span class="apiName">ETH</span></option>
+            <option>DASH <span class="apiName">DASH</span></option>
+            <option>ZCash <span class="apiName">ZEC</span></option>
+          </select>
+        </th>
+        <th>Qty</th>
+        <th>Price
+           <select>
+            <option>Price in..</option>
+            <option  selected>USD</option>
+            <option>EUR</option>
+            <option>Bitcoin BTC</option>
+            <option>Ethereum ETH</option>
+            <option>DASH</option>
+            <option>ZCash</option>
+          </select>
+        </th>
+        <th>Total</th>
+      </tr>
+      <tr class="asset BTC">
+        <td class="token">Bitcoin <span class="apiName">BTC</span> <a href="#" class="delete">delete</a></td>
+        <td class="qty">0.5</td>
+        <td class="price">1000 USD</td>
+        <td class="total">500 USD</td>
+      </tr>
+      <tr class="asset DASH">
+        <td class="token">DASH <span class="apiName">DASH</span> <a href="#" class="delete">delete</a></td>
+        <td class="qty">2</td>
+        <td class="price">100 USD</td>
+        <td class="total">200 USD</td>
+      </tr>
+      <tr class="grandTotal">
+        <td colspan="3">Grand Total:</td>
+        <td class="grandTotal">700 USD</td>
+      </tr>
+    </table>
+    </form>
+  </div>
+  </main>
+  
+  <!--script src="https://code.jquery.com/jquery-3.1.0.js"></script-->
+  <script src="../jquery-3.1.0.js"></script>
+  <script src="cryptocompare.js"></script>
+</body>
+</html>
