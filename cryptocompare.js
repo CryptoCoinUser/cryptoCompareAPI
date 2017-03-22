@@ -1,3 +1,79 @@
+var priceArray = []; // coin prices in the order they were added (will have to remove one on delete)
+var coinLongNames = {
+  BTC: 'Bitcoin',
+  ETH: 'Etherem',
+  DASH:'DASH',
+  ZEC: 'ZCash'
+}
+
+$('table').on('change', 'select.coin', function(event){
+  //get coin
+  var newCoin = $('table').find('select.coin option:selected').val();
+  addRow(newCoin);
+  removeCoinFromSelect(newCoin);
+  var newCoinObject = {coinKey: newCoin, priceKey: -1}
+  priceArray.push(newCoinObject);
+  var priceIn = getPriceIn($(this).closest('table'));
+  var queryObject = { fsym: newCoin, tsymsArray: [priceIn]}
+  getDataFromApi(queryObject, updateNewCoinPrice);
+});
+
+function updateNewCoinPrice(data){
+  var lastIndex = priceArray.length - 1;
+  var dataKeysArray = Object.keys(data);
+  var priceIn = dataKeysArray[0];
+  price = data[priceIn];
+  var lastObject = priceArray[lastIndex];
+  //var lastObjectKeysArray = Object.keys(lastObject);
+  var coin = lastObject['coinKey'];
+  lastObject['priceKey'] = price;
+  // console.log('updateNewCoinPrice');
+  // console.log(lastObject);
+  // console.log(price);
+
+}
+
+function addRow(coin){
+  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" placeholder="number of coins"></td><td class="price">TBLookedUp</td><td class="total">TBMultiplied</td></tr>');
+  //add class to row
+  newRow.find('tr.asset').addClass(coin);
+  //add long coin name
+  var coinLongName = lookupCoinLongName(coin);
+  newRow.find('td.coin').prepend(coinLongName);
+  //add coin apiName
+  newRow.find('span.apiName').html(coin);
+  //long coin name to placeholder
+  console.log(newRow);
+  $('tbody').append(newRow);
+}
+
+function lookupCoinLongName(coinApiName){
+  var coinLongName = coinLongNames[coinApiName]
+  return coinLongNames[coinApiName];
+}
+
+function removeCoinFromSelect(newCoin){
+  $('table').find('select.coin option:selected').remove();
+}
+
+$('table tbody').on('click', 'a.delete', function(event){
+  event.preventDefault();
+  event.stopPropagation();
+  var coinToAddBackToSelect = $(this).closest('tr.asset').find('span.apiName').html();
+  addCoinToSelect(coinToAddBackToSelect);
+  $(this).closest('tr.asset').remove();
+
+})
+
+
+function addCoinToSelect(coin){
+  console.log('addCoinToSelect TODO optimization: sort select options so the A-Z order does not chagne while coins are added and deleted');
+  var coinLongName = lookupCoinLongName(coin);
+  console.log(coinLongName);
+  $('table thead').find('select.coin').append('<option value="' + coin + '">' + coinLongName + '</option>');
+}
+
+
 function getDataFromApi(queryObject, callback) {
   var BASE_URL = 'https://min-api.cryptocompare.com/data/price';
   var query = { fsym: queryObject.fsym,
@@ -33,10 +109,10 @@ function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow){
 
 $(document).ready(function(){
   //assuming some asset rows
-  refreshPrices();
-  setTimeout(function(){
-    updateTotals();
-  }, 1000); 
+//  refreshPrices();
+  // setTimeout(function(){
+  //   updateTotals();
+  // }, 1000); 
 });
 
 $('table').on('change', 'select.priceIn', function(event){
@@ -54,9 +130,13 @@ function refreshPrices(){
 }
 
 $('table').on('change', 'input.qty', function(event){
-  //refreshPrices();
-  //var qty = $(this).val();
-  updateTotal($(this).closest('tr.asset'));
+  event.preventDefault();
+  event.stopPropagation();
+  refreshPrices();
+  var qty = $(this).val();
+  setTimeout(function(){
+    updateTotal($(this).closest('tr.asset'));
+  }, 1000); 
 });
 
 function updateTotal(row){

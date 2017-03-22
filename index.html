@@ -35,16 +35,17 @@
   <main>
   <div class="js-ledger">
   <form>
+    <h2><a href="#">Refresh Prices</a></h2>
     <table>
       <thead>
         <tr>
           <th class="coin">Coin
              <select class="coin">
               <option>Add Coin</option>
-              <option>Bitcoin <span class="apiName">BTC</span></option>
-              <option>Ethereum <span class="apiName">ETH</span></option>
-              <option>DASH <span class="apiName">DASH</span></option>
-              <option>ZCash <span class="apiName">ZEC</span></option>
+              <option value="BTC">Bitcoin</option>
+              <option value="ETH">Ethereum</option>
+              <option value="DASH">DASH</option>
+              <option value="ZEC">ZCash</option>
             </select>
           </th>
           <th class="qty">Qty</th>
@@ -63,7 +64,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="asset BTC">
+        <!-- <tr class="asset BTC">
           <td class="coin">Bitcoin <span class="apiName">BTC</span> <a href="#" class="delete">delete</a></td>
           <td class="qty"><input class="qty" type="text" value="0.5"></td>
           <td class="price">TBA</td>
@@ -75,7 +76,7 @@
           <td class="price">TBA</td>
           <td class="total">TBMultiplied</td>
         </tr>
-      </tbody>
+      </tbody> -->
       <tfoot>
         <tr class="grandTotal">
           <td colspan="3">Grand Total:</td>
@@ -96,5 +97,6 @@ if (typeof jQuery == 'undefined') {
 
 
   <script src="cryptocompare.js"></script>
-</body>
+<!--   <script src="akivaJsFiddle.js"></script>
+ --></body>
 </html>
