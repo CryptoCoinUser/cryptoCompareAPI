@@ -1,17 +1,19 @@
-var priceArray = []; // coin prices in the order they were added (will have to remove one on delete)
+var priceArray = []; // coin prices in the order they were added (will have to remove one on delete) BUT in which priceIn?
 var coinLongNames = {
   BTC: 'Bitcoin',
   ETH: 'Etherem',
   DASH:'DASH',
   ZEC: 'ZCash'
 }
-
-$('table').on('change', 'select.coin', function(event){
+$('form').on('submit')
+$('form').on('change', 'select.coin', function(event){
   //get coin
   var newCoin = $('table').find('select.coin option:selected').val();
-  addRow(newCoin);
-  removeCoinFromSelect(newCoin);
-  var newCoinObject = {coinKey: newCoin, priceKey: -1}
+  addRow(newCoin); // add row and add price later with callback
+  removeCoinFromSelect(newCoin); // so the same coin cannot be added twice
+  var priceIn = getPriceIn($('form'));
+  var newCoinObject = {coinKey: newCoin}
+  newCoinObject[priceIn] = -1; // it's possible a coinObject to be like {coinKey: "BTC", USD: 1092.95, EUR: -1}
   priceArray.push(newCoinObject);
   var priceIn = getPriceIn($(this).closest('table'));
   var queryObject = { fsym: newCoin, tsymsArray: [priceIn]}
@@ -19,22 +21,23 @@ $('table').on('change', 'select.coin', function(event){
 });
 
 function updateNewCoinPrice(data){
-  var lastIndex = priceArray.length - 1;
   var dataKeysArray = Object.keys(data);
   var priceIn = dataKeysArray[0];
   price = data[priceIn];
+  var lastIndex = priceArray.length - 1;
   var lastObject = priceArray[lastIndex];
   //var lastObjectKeysArray = Object.keys(lastObject);
   var coin = lastObject['coinKey'];
-  lastObject['priceKey'] = price;
-  // console.log('updateNewCoinPrice');
-  // console.log(lastObject);
-  // console.log(price);
+  lastObject[priceIn] = price; // cache the price in priceArray, overwrite the default -1 or the last price;
+  displayPriceOfNewCoin(price); // put price in last row of tbody
+}
 
+function displayPriceOfNewCoin(price){
+  $('.asset:last-child').find('.price').html(price.toFixed(2));  
 }
 
 function addRow(coin){
-  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" placeholder="number of coins"></td><td class="price">TBLookedUp</td><td class="total">TBMultiplied</td></tr>');
+  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" placeholder="number of coins" value="0"></td><td class="price">TBLookedUp</td><td class="total">0</td></tr>');
   //add class to row
   newRow.find('tr.asset').addClass(coin);
   //add long coin name
@@ -43,7 +46,7 @@ function addRow(coin){
   //add coin apiName
   newRow.find('span.apiName').html(coin);
   //long coin name to placeholder
-  console.log(newRow);
+  //console.log(newRow);
   $('tbody').append(newRow);
 }
 
@@ -59,15 +62,20 @@ function removeCoinFromSelect(newCoin){
 $('table tbody').on('click', 'a.delete', function(event){
   event.preventDefault();
   event.stopPropagation();
-  var coinToAddBackToSelect = $(this).closest('tr.asset').find('span.apiName').html();
-  addCoinToSelect(coinToAddBackToSelect);
+  var coin = $(this).closest('tr.asset').find('span.apiName').html();
+  addCoinToSelect(coin);
+  var NthCoin = $(this).closest('tr.asset').index();
+  removeCoinFromPriceArray(NthCoin);
   $(this).closest('tr.asset').remove();
-
 })
+
+function removeCoinFromPriceArray(NthCoin){
+  priceArray = priceArray.splice(NthCoin,1);
+}
 
 
 function addCoinToSelect(coin){
-  console.log('addCoinToSelect TODO optimization: sort select options so the A-Z order does not chagne while coins are added and deleted');
+  console.log('addCoinToSelect TODO optimization: insert the option in A-Z order, so its place does not chagne while coins are added and deleted');
   var coinLongName = lookupCoinLongName(coin);
   console.log(coinLongName);
   $('table thead').find('select.coin').append('<option value="' + coin + '">' + coinLongName + '</option>');
@@ -88,107 +96,101 @@ function getCoinFromRow(row){
   return coin;
 }
 
-function getPriceIn(table){
-  var priceIn = $('table').find('select.priceIn option:selected').val();
+function getPriceIn(form){
+  var priceIn = $('form').find('select.priceIn option:selected').val();
   return priceIn;
 }
 
 function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow){
+  console.log('lookupPriceAndDisplayItInRow TODO: check if this PriceIn price is aleady in priceArray object for this coin, BEFORE doing another getDataFromApi');
   var price;
 	var queryObject = { fsym: coin,	tsymsArray: [priceIn]}
 	getDataFromApi(queryObject, extractPriceAndDisplayItInRow);
 	
     function extractPriceAndDisplayItInRow(data){
+      console.log('extractPriceAndDisplayItInRow TODO: add this PriceIn price to priceArray object for this coin');
       var dataKeysArray = Object.keys(data);
       var priceIn = dataKeysArray[0];
       price = data[priceIn];
       $(htmlRow).find('td.price').html(price);
     }
-    // syncronous vs async: how do I RETURN the price so i can pass it to another function? use Promise?
 }
 
-$(document).ready(function(){
-  //assuming some asset rows
-//  refreshPrices();
-  // setTimeout(function(){
-  //   updateTotals();
-  // }, 1000); 
-});
-
-$('table').on('change', 'select.priceIn', function(event){
+/* WHEN PriceIn IS CHANGED */
+$('form').on('change', 'select.priceIn', function(event){
   refreshPrices();
-  updateTotals();
+  updateTotals(); // including grand total
 });
 
 function refreshPrices(){
-  $('table tr.asset').each(function(rowNumber){
-    var htmlRow = $('table tr.asset')[rowNumber];
+  $('form .asset').each(function(rowNumber){
+    var htmlRow = $('form .asset')[rowNumber];
     var coin = getCoinFromRow(htmlRow);
-    var priceIn = getPriceIn($('table'));
+    var priceIn = getPriceIn($('form'));
     lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow);
+    
+    /* updateTotal for this row AFTER the price is updated (from API or from priceArray)
+    var priceContainer = $($(this).closest('.asset').find('.price'));
+    console.log('priceContainer');
+    console.log(priceContainer);
+    $('table').on('change', priceContainer, function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      updateTotal(htmlRow);
+    }); 
+    */
+    setTimeout(function(){
+      updateTotal(htmlRow);
+    }, 1000); 
   })
+  
+  setTimeout(function(){
+     updateGrandTotal();
+  }, 2000);
 }
-
+/* WHEN QTY IS CHAGGED */
 $('table').on('change', 'input.qty', function(event){
   event.preventDefault();
   event.stopPropagation();
-  refreshPrices();
-  var qty = $(this).val();
-  setTimeout(function(){
-    updateTotal($(this).closest('tr.asset'));
-  }, 1000); 
+  var thisRow = $(this).closest('.asset');
+  updateTotal(thisRow);
+  updateGrandTotal();
+
 });
+
+function updateGrandTotal(){ // without re-calculating each row's total
+    //console.log('updateGrandTotal() called');
+  var grandTotal = 0;
+  $('form .asset').each(function(rowNumber){
+    var htmlRow = $('form .asset')[rowNumber];
+    var total = Number(getTotal(htmlRow));
+    grandTotal += total;
+  })
+  $('.grandTotal').html(grandTotal.toFixed(2));
+}
 
 function updateTotal(row){
   var qty = getQty(row);
   var price = getPrice(row);
-  var total = qty * price;
+  var total = (qty * price).toFixed(2);
   $(row).find('td.total').html(total);
-  // console.log('updateTotal');
-  // console.log(qty);
-  // console.log(price);
-  // console.log(total);
 }
 
-function updateTotals(){
+function updateTotals(){ // including grandTotal
   console.log('updateTotals() called');
   var grandTotal = 0;
-  $('table tr.asset').each(function(rowNumber){
-    var htmlRow = $('table tr.asset')[rowNumber];
-    
-    console.log('updateTotals() for each row');
-    
-    console.log('htmlRow');
-    console.log(htmlRow);
-    
-    console.log('calling updateTotal');
+  $('form .asset').each(function(rowNumber){
+    var htmlRow = $('form .asset')[rowNumber];
     updateTotal(htmlRow);
-
-    console.log('calling getTotal');
     var total = getTotal(htmlRow);
-    console.log('total');
-    console.log(total);
     grandTotal += total;
-
-
-
   })
-  $('td.gradTotal').html(grandTotal);
+  $('.grandTotal').html(grandTotal.toFixed(2));
   //console.log(grandTotal);
 }
 
 function getQty(row){
   var qty = $(row).find('input.qty').val();
-  //console.log('getQty');
-  //console.log(qty);
-  //console.log(row);
-  if(!qty){
-    console.log('getQty: qty is false');
-    console.log('row is');
-    console.log(row);
-    console.log('qty is');
-    console.log(qty);
-  }
   return qty;
 }
 function getPrice(row){
@@ -196,16 +198,15 @@ function getPrice(row){
   return price;
 }
 function getTotal(row){
-  var total = $(row).find('input.total').val();
+  var total = $(row).find('.total').html();
   if(!total){
     total = updateTotal(row);
-    // console.log('getTotal: total is false');
-    // console.log(row);
-    // console.log('total');
-    // console.log(total);
+    console.log('getTotal: total is false');
+    console.log(row);
+    console.log('total');
+    
   }
-
-  return total;
+  return Number(total);
 }
 
 

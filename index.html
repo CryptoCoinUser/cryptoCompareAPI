@@ -34,7 +34,7 @@
   </header>
   <main>
   <div class="js-ledger">
-  <form>
+  <form onsubmit="event.preventDefault();">
     <h2><a href="#">Refresh Prices</a></h2>
     <table>
       <thead>
@@ -78,9 +78,9 @@
         </tr>
       </tbody> -->
       <tfoot>
-        <tr class="grandTotal">
+        <tr class="grandTotalRow">
           <td colspan="3">Grand Total:</td>
-          <td class="grandTotal">TBAdded</td>
+          <td class="grandTotal">0</td>
         </tr>
       </tfoot>
     </table>
