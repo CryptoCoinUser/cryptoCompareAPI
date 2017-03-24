@@ -59,7 +59,7 @@ function displayPriceOfNewCoin(price){
 }
 
 function addRow(coin){
-  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" placeholder="number of coins" value="0"></td><td class="price">TBLookedUp</td><td class="total">0</td></tr>');
+  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" size="5" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
   newRow.find('.asset').addClass(coin);   //add class to row
   var coinLongName = lookupCoinLongName(coin);  //add long coin name
   newRow.find('.coin').prepend(coinLongName);   
@@ -84,6 +84,7 @@ $('table tbody').on('click', 'a.delete', function(event){
   var NthCoin = $(this).closest('tr.asset').index();
   removeCoinFromPriceArray(NthCoin);
   $(this).closest('tr.asset').remove();
+  updateGrandTotal();
 })
 
 function removeCoinFromPriceArray(NthCoin){
