@@ -33,7 +33,11 @@ $('form').on('change', 'select.coin', function(event){
   var newCoinObject = {coinKey: newCoin}
   newCoinObject[priceIn] = 0; // it's possible a coinObject to be like {coinKey: "BTC", USD: 1092.95, EUR: 0}
   priceArray.push(newCoinObject);
-  var priceIn = getPriceIn($(this).closest('table'));
+  var priceIn = getPriceIn($(this).closest('form'));
+  if(newCoin == priceIn){
+    lastObject[returnedPriceIn] = 1;
+    displayPriceOfNewCoin(1);
+  }
   var queryObject = { fsym: newCoin, tsymsArray: [priceIn]}
   getDataFromApi(queryObject, updateNewCoinPrice);
 });
@@ -99,7 +103,7 @@ function getDataFromApi(queryObject, callback) {
   var BASE_URL = 'https://min-api.cryptocompare.com/data/price';
   var query = { fsym: queryObject.fsym,
                 tsyms: queryObject.tsymsArray.toString()       
-             }
+              }
   $.getJSON(BASE_URL, query, callback);
 }
 
@@ -116,11 +120,16 @@ function getPriceIn(form){
 
 function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbackUpdateTotal){
   var price;
+
   console.log('lookupPriceAndDisplayItInRow');
+  console.log(priceArray[rowNumber][priceIn]);
   if(priceArray[rowNumber][priceIn]){
     price = priceArray[rowNumber][priceIn];
     $(htmlRow).find('.price').html(price);
     callbackUpdateTotal();
+  } else if(coin == priceIn){ // API returns only {} for fsym=BTC&tsyms=BTC, instead of {"BTC": 1}
+     $(htmlRow).find('.price').html(1);
+     priceArray[rowNumber][priceIn] = 1;
   } else{
   	var queryObject = { fsym: coin,	tsymsArray: [priceIn]}
   	getDataFromApi(queryObject, extractPriceAndDisplayItInRow);
