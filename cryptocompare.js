@@ -1,21 +1,10 @@
-/* Need to rewrite priceArray as object of objects
-var cache = {
-  BTC: {
-    USD: X,
-    EUR: Y,
-  },
-  LTC: {
-    USD: X,
-    EUR: Y,
-  },
-  ETH: {
-    USD: X,
-    EUR: Y,
-  },
-}
-*/
-
-var priceArray = []; // coin prices in the order they were added (will have to remove one on delete)
+var coinPriceObjects = { 
+  BTC: { USD: 0, EUR: 0, BTC: 1, ETH: 0, DASH:0, ZEC: 0},
+  ETH: { USD: 0, EUR: 0, BTC: 0, ETH: 1, DASH:0, ZEC: 0},
+  DASH:{ USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:1, ZEC: 0},
+  ZEC: { USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:0, ZEC: 1}
+};
+var priceArray = []; // (DEPRECATING) coin prices in the order they were added (will have to remove one on delete)
 var coinLongNames = {
   BTC: 'Bitcoin',
   ETH: 'Ethereum',
@@ -48,9 +37,8 @@ function updateNewCoinPrice(returnedData){
   returnedPrice = returnedData[returnedPriceIn];
   var lastIndex = priceArray.length - 1;
   var lastObject = priceArray[lastIndex];
-  //var lastObjectKeysArray = Object.keys(lastObject);
   var coin = lastObject['coinKey'];
-  lastObject[returnedPriceIn] = returnedPrice; // cache the price in priceArray, overwrite the default -1 or the last price;
+  lastObject[returnedPriceIn] = returnedPrice; // cache the price in priceArray, overwrite the default 0 or the last price;
   displayPriceOfNewCoin(returnedPrice); // put price in last row of tbody
 }
 
@@ -59,7 +47,7 @@ function displayPriceOfNewCoin(price){
 }
 
 function addRow(coin){
-  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" size="5" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
+  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" size="7" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
   newRow.find('.asset').addClass(coin);   //add class to row
   var coinLongName = lookupCoinLongName(coin);  //add long coin name
   newRow.find('.coin').prepend(coinLongName);   
@@ -95,7 +83,6 @@ function removeCoinFromPriceArray(NthCoin){
 function addCoinToSelect(coin){
   console.log('addCoinToSelect TODO optimization: insert the option in A-Z order, so its place does not chagne while coins are added and deleted');
   var coinLongName = lookupCoinLongName(coin);
-  console.log(coinLongName);
   $('table thead').find('select.coin').append('<option value="' + coin + '">' + coinLongName + '</option>');
 }
 
@@ -121,9 +108,6 @@ function getPriceIn(form){
 
 function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbackUpdateTotal){
   var price;
-
-  console.log('lookupPriceAndDisplayItInRow');
-  console.log(priceArray[rowNumber][priceIn]);
   if(priceArray[rowNumber][priceIn]){
     price = priceArray[rowNumber][priceIn];
     $(htmlRow).find('.price').html(price);
@@ -139,7 +123,6 @@ function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbac
       var returnedPriceIn = returnedDataKeysArray[0];
       returnedPrice = returnedData[returnedPriceIn];
       $(htmlRow).find('.price').html(returnedPrice);
-      //console.log('extractPriceAndDisplayItInRow TODO: add this PriceIn price to priceArray object for this coin');
       //assuming this coin does not have this priceIn price OR it needs to be updated
       priceArray[rowNumber][priceIn] = returnedPrice;
       callbackUpdateTotal();
@@ -162,22 +145,7 @@ function refreshPrices(){
     var priceIn = getPriceIn($('form'));
     lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, function(){
       updateTotal(htmlRow);
-      console.log('callback called');
     });
-
-    /* updateTotal for this row AFTER the price is updated (from API or from priceArray)
-    var priceContainer = $($(this).closest('.asset').find('.price'));
-    console.log('priceContainer');
-    console.log(priceContainer);
-    $('table').on('change', priceContainer, function(event){
-      event.preventDefault();
-      event.stopPropagation();
-      updateTotal(htmlRow);
-    }); 
-    */
-   // setTimeout(function(){
-      //updateTotal(htmlRow);
-   // }, 1000); 
   })
   
   //setTimeout(function(){
@@ -233,10 +201,6 @@ function getTotal(row){
   var total = $(row).find('.total').html();
   if(!total){
     total = updateTotal(row);
-    console.log('getTotal: total is false');
-    console.log(row);
-    console.log('total');
-    
   }
   return Number(total);
 }
@@ -249,14 +213,11 @@ $('form').on('click', '#refresh', function(event){
 })
 
 function clearCache(){
-  console.log('clearCache() called');
-  console.log(priceArray);
   for(var i = 0; i < priceArray.length; i++){
     var coinObject = priceArray[i];
     var coinApiName = coinObject['coinKey'];
     coinObject = {coinKey: coinApiName};
   }
-  console.log(priceArray);
 }
 
 
