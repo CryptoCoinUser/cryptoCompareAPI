@@ -63,7 +63,7 @@ function displayPriceOfNewCoin(priceObject){
 }
 
 function addRow(coin){
-  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete">delete</a></td><td class="qty"><input class="qty" type="text" size="7" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
+  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete" title="Delete this coin">X</a></td><td class="qty"><input class="qty" type="text" size="7" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
   newRow.find('.asset').addClass(coin);   //add class to row
   var coinLongName = lookupCoinLongName(coin);  //add long coin name
   newRow.find('.coin').prepend(coinLongName);   
@@ -169,7 +169,7 @@ function refreshPrices(){
   //}, 2000);
 }
 /* WHEN QTY IS CHAGGED */
-$('table').on('change', 'input.qty', function(event){
+$('table').on('keyup', 'input.qty', function(event){
   event.preventDefault();
   event.stopPropagation();
   var thisRow = $(this).closest('.asset');
