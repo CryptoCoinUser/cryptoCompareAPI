@@ -1,0 +1,56 @@
+  * {box-sizing: border-box;}
+  body{padding:5%;}
+  form section{margin-bottom: 2em;}
+  button{font-size:22px;}
+
+  tbody{background-color: #eee;}
+  tbody tr:nth-child(odd){background-color: #ccc;}
+  thead{background-color: orange;}
+  tfoot{background-color: orange;}
+
+  th, td{
+    vertical-align: text-top;
+    padding:5px;
+  }
+  td a.delete{float:right; display: block;}
+  td[colspan="3"]{text-align: right;}
+  .apiName{font-style: italic; font-size: 0.8em;}
+
+  @media only screen and (max-width: 480px) {
+
+    table, thead, tbody, tfoot, th, td, tr { 
+      display: block; 
+    }
+    /*
+    thead tr { 
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    */
+    
+    tr { border: 1px solid #333; }
+    
+    tbody td { 
+      border: none;
+      border-bottom: 1px dotted #666; 
+      position: relative;
+      padding-left: 55%; 
+    }
+    
+    tbody td:before { 
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 40%; 
+      padding-right: 10px; 
+      white-space: nowrap;
+    }
+    
+    tbody td:nth-of-type(1):before { content: "Coin"; }
+    tbody td:nth-of-type(2):before { content: "Qty"; }
+    tbody td:nth-of-type(3):before { content: "Price"; }
+    tbody td:nth-of-type(4):before { content: "Total"; }
+
+    }
+  } /* end media query */

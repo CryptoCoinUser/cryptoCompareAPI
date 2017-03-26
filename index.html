@@ -4,29 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>Avram's Crypto Compare</title>
-  <style>
-  * {box-sizing: border-box;}
-  body{padding:50px;}
-  .js-search-results article{float:left; text-align: center; 
-    padding:15px;
-    width:33.3%;
-    background-color: #eee;
-    margin:15px 0;
-  }
-  article strong{display: block; height: 2em;}
-  article a.channel{display: block; text-decoration: none;}
-  form section{margin-bottom: 2em;}
-  button{font-size:22px;}
-
-  tr:nth-child(odd){background-color: #eee;}
-  th, td{
-    vertical-align: text-top;
-    padding:5px;
-  }
-  td a.delete{float:right; display: block;}
-  td[colspan="3"]{text-align: right;}
-  .apiName{font-style: italic; font-size: 0.8em;}
-  </style>
+  <link rel="stylesheet" type="text/css" href="cryptocompare.css">
 </head>
 <body>
   <header>
@@ -64,19 +42,6 @@
         </tr>
       </thead>
       <tbody>
-        <!-- <tr class="asset BTC">
-          <td class="coin">Bitcoin <span class="apiName">BTC</span> <a href="#" class="delete">delete</a></td>
-          <td class="qty"><input class="qty" type="text" value="0.5"></td>
-          <td class="price">TBA</td>
-          <td class="total">TBMultiplied</td>
-        </tr>
-        <tr class="asset DASH">
-          <td class="coin">DASH <span class="apiName">DASH</span> <a href="#" class="delete">delete</a></td>
-          <td class="qty"><input class="qty" type="text" value="2"></td>
-          <td class="price">TBA</td>
-          <td class="total">TBMultiplied</td>
-        </tr>
-      </tbody> -->
       <tfoot>
         <tr class="grandTotalRow">
           <td colspan="3">Grand Total:</td>

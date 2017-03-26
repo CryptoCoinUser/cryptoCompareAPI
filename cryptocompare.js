@@ -1,8 +1,8 @@
 var coinPriceObjects = { 
-  BTC: { USD: 0, EUR: 0, BTC: 1, ETH: 0, DASH:0, ZEC: 0},
-  ETH: { USD: 0, EUR: 0, BTC: 0, ETH: 1, DASH:0, ZEC: 0},
-  DASH:{ USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:1, ZEC: 0},
-  ZEC: { USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:0, ZEC: 1}
+  BTC: { USD: 0, EUR: 0, ETH: 0, DASH:0, ZEC: 0},
+  ETH: { USD: 0, EUR: 0, BTC: 0, DASH:0, ZEC: 0},
+  DASH:{ USD: 0, EUR: 0, BTC: 0, ETH: 0, ZEC: 0},
+  ZEC: { USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:0}
 };
 var priceArray = []; // (DEPRECATING) coin prices in the order they were added (will have to remove one on delete)
 var coinLongNames = {
@@ -19,31 +19,47 @@ $('form').on('change', 'select.coin', function(event){
   addRow(newCoin); // add row and add price later with callback
   removeCoinFromSelect(newCoin); // so the same coin cannot be added twice
   var priceIn = getPriceIn($('form'));
-  var newCoinObject = {coinKey: newCoin}
-  newCoinObject[priceIn] = 0; // it's possible a coinObject to be like {coinKey: "BTC", USD: 1092.95, EUR: 0}
-  priceArray.push(newCoinObject);
+  // TODO: setInterval to refresh or update on change in qty
+  if(!coinPriceObjects[newCoin]){
+    coinPriceObjects[newCoin] = { USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:0, ZEC: 0};
+  }
+  /* var newCoinObject = {coinKey: newCoin}
+  newCoinObject[priceIn] = 0; 
+  priceArray.push(newCoinObject); */
   var priceIn = getPriceIn($(this).closest('form'));
   if(newCoin == priceIn){
     lastObject[returnedPriceIn] = 1;
     displayPriceOfNewCoin(1);
   }
-  var queryObject = { fsym: newCoin, tsymsArray: [priceIn]}
-  getDataFromApi(queryObject, updateNewCoinPrice);
+  var priceInCurrenciesArray = Object.keys(coinPriceObjects[newCoin]);
+  var queryObject = { fsym: newCoin, tsymsArray: priceInCurrenciesArray}
+  getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
 });
 
-function updateNewCoinPrice(returnedData){
+function updateNewCoinPrice(newCoin, returnedData){
+  console.log(returnedData);
+  coinPriceObjects[newCoin] = returnedData;
+
+
+
+  /*
   var returnedDataKeysArray = Object.keys(returnedData);
   var returnedPriceIn = returnedDataKeysArray[0];
   returnedPrice = returnedData[returnedPriceIn];
+  
   var lastIndex = priceArray.length - 1;
   var lastObject = priceArray[lastIndex];
   var coin = lastObject['coinKey'];
-  lastObject[returnedPriceIn] = returnedPrice; // cache the price in priceArray, overwrite the default 0 or the last price;
-  displayPriceOfNewCoin(returnedPrice); // put price in last row of tbody
+  lastObject[returnedPriceIn] = returnedPrice; 
+  */
+  displayPriceOfNewCoin(returnedData); // put price in last row of tbody
 }
 
-function displayPriceOfNewCoin(price){
-  $('.asset:last-child').find('.price').html(price.toFixed(2));  
+function displayPriceOfNewCoin(priceObject){
+  var priceIn = getPriceIn('form');
+  var wantedPrice = priceObject[priceIn];
+  console.log(wantedPrice);
+  $('.asset:last-child').find('.price').html(wantedPrice.toFixed(2));  
 }
 
 function addRow(coin){
@@ -70,15 +86,15 @@ $('table tbody').on('click', 'a.delete', function(event){
   var coin = $(this).closest('tr.asset').find('span.apiName').html();
   addCoinToSelect(coin);
   var NthCoin = $(this).closest('tr.asset').index();
-  removeCoinFromPriceArray(NthCoin);
+  //removeCoinFromPriceArray(NthCoin);
   $(this).closest('tr.asset').remove();
   updateGrandTotal();
 })
-
+/*
 function removeCoinFromPriceArray(NthCoin){
   priceArray = priceArray.splice(NthCoin,1);
 }
-
+*/
 
 function addCoinToSelect(coin){
   console.log('addCoinToSelect TODO optimization: insert the option in A-Z order, so its place does not chagne while coins are added and deleted');
@@ -108,15 +124,15 @@ function getPriceIn(form){
 
 function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbackUpdateTotal){
   var price;
-  if(priceArray[rowNumber][priceIn]){
-    price = priceArray[rowNumber][priceIn];
+  if(coinPriceObjects[coin][priceIn]){
+    price = coinPriceObjects[coin][priceIn];
     $(htmlRow).find('.price').html(price);
     callbackUpdateTotal();
   } else if(coin == priceIn){ // API returns only {} for fsym=BTC&tsyms=BTC, instead of {"BTC": 1}
      $(htmlRow).find('.price').html(1);
-     priceArray[rowNumber][priceIn] = 1;
+     coinPriceObjects[coin][priceIn] = 1;
   } else{
-  	var queryObject = { fsym: coin,	tsymsArray: [priceIn]}
+  	var queryObject = { fsym: coin,	tsymsArray: [priceIn]} // TODO: to optimize, add the common priceIns as well
   	getDataFromApi(queryObject, extractPriceAndDisplayItInRow);
   	function extractPriceAndDisplayItInRow(returnedData){
       var returnedDataKeysArray = Object.keys(returnedData);
@@ -124,7 +140,7 @@ function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbac
       returnedPrice = returnedData[returnedPriceIn];
       $(htmlRow).find('.price').html(returnedPrice);
       //assuming this coin does not have this priceIn price OR it needs to be updated
-      priceArray[rowNumber][priceIn] = returnedPrice;
+      coinPriceObjects[coin][priceIn] = returnedPrice;
       callbackUpdateTotal();
     }
   }
@@ -211,7 +227,7 @@ $('form').on('click', '#refresh', function(event){
   clearCache();
   updateTotals();
 })
-
+/*
 function clearCache(){
   for(var i = 0; i < priceArray.length; i++){
     var coinObject = priceArray[i];
@@ -219,7 +235,7 @@ function clearCache(){
     coinObject = {coinKey: coinApiName};
   }
 }
-
+*/
 
 
 
