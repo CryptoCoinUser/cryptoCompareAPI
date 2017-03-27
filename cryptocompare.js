@@ -149,6 +149,7 @@ $('form').on('change', 'select.priceIn', function(event){
 });
 
 function refreshPrices(){
+  console.log('refreshPrices TODO use Multi API BASE_URL to lookup all rows of added coins in a single call');
   var priceIn = getPriceIn($('form'));
   $('form .asset').each(function(rowNumber){
     var htmlRow = $('form .asset')[rowNumber];
@@ -220,6 +221,7 @@ $('form').on('click', '#refresh', function(event){
 })
 
 function clearCache(){
+  console.log('clearCache TODO: rewrite to zero-out by interating, NOT duplicating code of coinPriceObjects declaration');
   coinPriceObjects = { 
     BTC: { USD: 0, EUR: 0, ETH: 0, DASH:0, ZEC: 0},
     ETH: { USD: 0, EUR: 0, BTC: 0, DASH:0, ZEC: 0},
