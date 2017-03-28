@@ -36,17 +36,13 @@ $('form').on('change', 'select.coin', function(event){
 });
 
 function updateNewCoinPrice(newCoin, returnedData){
-  console.log(returnedData);
   coinPriceObjects[newCoin] = returnedData;
-  console.log('updateNewCoinPrice returnedData');
-  returnedData;
   displayPriceOfNewCoin(returnedData); // put price in last row of tbody
 }
 
 function displayPriceOfNewCoin(priceObject){
   var priceIn = getPriceIn('form');
   var wantedPrice = priceObject[priceIn];
-  console.log(wantedPrice);
   $('.asset:last-child').find('.price').html(wantedPrice.toFixed(2));  
 }
 
@@ -88,7 +84,7 @@ function getDataFromApi(queryObject, callback) {
   var BASE_URL = 'https://min-api.cryptocompare.com/data/price';
   var query = { fsym: queryObject.fsym,
                 tsyms: queryObject.tsymsArray.toString()       
-              }
+              };
               console.log('getDataFromApi');
               console.log(queryObject.tsymsArray);
   $.getJSON(BASE_URL, query, callback);
@@ -127,14 +123,6 @@ function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbac
       console.log('extractPriceAndDisplayItInRow returnedData');
       console.log(returnedData);
       coinPriceObjects[coin] = returnedData
-      /*
-      var returnedDataKeysArray = Object.keys(returnedData);
-      var returnedPriceIn = returnedDataKeysArray[0];
-      returnedPrice = returnedData[returnedPriceIn];
-      $(htmlRow).find('.price').html(returnedPrice);
-      //assuming this coin does not have this priceIn price OR it needs to be updated
-      coinPriceObjects[coin][priceIn] = returnedPrice;
-      */
       callbackUpdateTotal();
     }
   }
@@ -144,12 +132,12 @@ function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbac
 $('form').on('change', 'select.priceIn', function(event){
   if($('form .asset')){
     refreshPrices();
-    updateTotals();  // including grand total
+    /*updateTotals();*/ 
   }
 });
 
 function refreshPrices(){
-  console.log('refreshPrices TODO use Multi API BASE_URL to lookup all rows of added coins in a single call');
+  
   var priceIn = getPriceIn($('form'));
   $('form .asset').each(function(rowNumber){
     var htmlRow = $('form .asset')[rowNumber];
@@ -159,7 +147,64 @@ function refreshPrices(){
     });
   }) 
      updateGrandTotal();
+  /*
+  console.log('refreshPrices using Multi API BASE_URL to lookup all rows of added coins in a single call');
+  lookupAllPricesAndDisplayThemInRows(function(){
+      updateTotals();
+    });
+  */
 }
+/*
+var sampleMultiQueryObject = {
+  fsyms: ['BTC', 'ETH', 'DASH', 'ZEC'],
+  tsyms: ['USD', 'EUR', 'BTC', 'ETH', 'DASH', 'ZEC']
+};
+
+getMultiDataFromApi(sampleMultiQueryObject, mergeMultiReturnedData);
+*/
+/* to optimize refreshPrices() */
+function lookupAllPricesAndDisplayThemInRows(callbackUpdateTotals){
+  /* https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,DASH,ZEC&tsyms=USD,EUR,BTC,ETH,DASH,ZEC */
+  var addedCoins = [];
+  var priceIn = getPriceIn($('form'));
+  $('form .asset').each(function(rowNumber){
+    var htmlRow = $('form .asset')[rowNumber];
+    var coin = getCoinFromRow(htmlRow);
+    addedCoins.push(coin);
+  });
+  var commonCurrenciesArray = Object.keys(coinPriceObjects["BTC"]);
+  var multiQueryObject = {
+    fsyms: addedCoins, 
+    tsyms: commonCurrenciesArray
+  };
+
+    getMultiDataFromApi(multiQueryObject, mergeMultiReturnedData);
+    callbackUpdateTotals();
+}
+
+function getMultiDataFromApi(multiQueryObject, callback) {
+  var BASE_URL = 'https://min-api.cryptocompare.com/data/pricemulti';
+  var queryObject = { fsyms: multiQueryObject.fsyms.toString(),
+                tsyms: multiQueryObject.tsyms.toString()       
+              };
+              console.log('getMultiDataFromApi');
+              console.log(multiQueryObject.fsyms);
+              console.log(multiQueryObject.tsyms);
+  $.getJSON(BASE_URL, queryObject, callback);
+}
+
+function mergeMultiReturnedData(multiReturnedData){
+  console.log('mergeMultiReturnedData TODO: merge coinPriceObjects and multiReturnedData, do not overwrite');
+  console.log(multiReturnedData);
+  var coinsToMergeArray = Object.keys(multiReturnedData);
+  for (var i = 0; i < coinsToMergeArray.length; i++){
+    var coin = coinsToMergeArray[i];
+    var coinReturnedPrices = multiReturnedData.coin;
+    coinPriceObjects.coin = coinReturnedPrices;
+  }
+  //coinPriceObjects = multiReturnedData;
+}
+
 /* WHEN QTY IS CHAGGED */
 $('table').on('keyup', 'input.qty', function(event){
   event.preventDefault();
@@ -187,6 +232,7 @@ function updateTotal(row){
 }
 
 function updateTotals(){ // including grandTotal
+  console.log('updateTotals called');
   var grandTotal = 0;
   $('form .asset').each(function(rowNumber){
     var htmlRow = $('form .asset')[rowNumber];
@@ -216,18 +262,24 @@ function getTotal(row){
 $('form').on('click', '#refresh', function(event){
   event.preventDefault();
   event.stopPropagation();
-  clearCache();
+  zeroOutCoinPriceObjects();
   refreshPrices();
 })
 
-function clearCache(){
-  console.log('clearCache TODO: rewrite to zero-out by interating, NOT duplicating code of coinPriceObjects declaration');
-  coinPriceObjects = { 
-    BTC: { USD: 0, EUR: 0, ETH: 0, DASH:0, ZEC: 0},
-    ETH: { USD: 0, EUR: 0, BTC: 0, DASH:0, ZEC: 0},
-    DASH:{ USD: 0, EUR: 0, BTC: 0, ETH: 0, ZEC: 0},
-    ZEC: { USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:0}
-  };
+function zeroOutCoinPriceObjects(){
+  //console.log('zeroOutCoinPriceObjects')
+  coinsToZeroOutArray = Object.keys(coinPriceObjects);
+  //console.log('coinsToZeroOut.length');
+  //console.log(coinsToZeroOutArray.length);
+  for(var i = 0; i < coinsToZeroOutArray.length; i++){
+    var thisCoinsPriceIns = coinPriceObjects[coinsToZeroOutArray[i]];
+    //console.log('thisCoinsPriceIns');
+    //console.log(thisCoinsPriceIns);
+    var priceInsToZeroOutArray = Object.keys(thisCoinsPriceIns);
+    for(var j = 0; j < priceInsToZeroOutArray.length; j++){
+      coinPriceObjects[coinsToZeroOutArray[i]][priceInsToZeroOutArray[j]] = 0;
+    }
+  }
 }
 
 
