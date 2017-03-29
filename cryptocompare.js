@@ -105,8 +105,6 @@ function getCoinFromRow(row){
 
 function getPriceIn(){
   var priceIn = $('form').find('select.priceIn option:selected').val();
-  console.log('getPriceIn priceIn');
-  console.log(priceIn);
   return priceIn;
 }
  
@@ -132,8 +130,6 @@ function lookupAllPricesAndDisplayThemInRows(callbackUpdateTotals){  /* sample m
     addedCoins.push(coin);
   });
   var commonCurrenciesArray = Object.keys(getCommonCurrenciesFromSelect());
-  console.log('commonCurrenciesArray');
-  console.log(commonCurrenciesArray);
   if(commonCurrenciesArray.indexOf(priceIn) === -1){  
     commonCurrenciesArray.push(priceIn);
   }
@@ -183,8 +179,6 @@ function updateGrandTotal(){ // without re-calculating each row's total
 }
 
 function updateTotal(row){
-  console.log('updateTotal(row) coinPriceObjects');
-  console.log(coinPriceObjects);
   var qty = getQty(row);
   var price = getPrice(row);
   var total = (qty * price).toFixed(2);
@@ -193,8 +187,6 @@ function updateTotal(row){
 }
 
 function updateTotals(){ // including grandTotal
-  console.log('updateTotals coinPriceObjects');
-  console.log(coinPriceObjects);
   var grandTotal = 0;
   $('form .asset').each(function(rowNumber){
     var htmlRow = $('form .asset')[rowNumber];

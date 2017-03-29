@@ -1,8 +1,11 @@
   * {box-sizing: border-box;}
-  body{padding:5%; font-family: Arial, sans-serif;}
+  body{padding:5%; font-family: Arial, sans-serif;
+    }
+  main{}
   form section{margin-bottom: 2em;}
   button{font-size:22px;}
 
+  table{font-size:150%;}
   tbody{background-color: #eee;}
   tbody tr:nth-child(odd){background-color: #ccc;}
   thead{background-color: orange;}
