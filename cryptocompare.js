@@ -35,7 +35,6 @@ $('form').on('change', 'select.coin', function(event){
   var priceIn = getPriceIn();
   if(!coinPriceObjects[newCoin]){
     coinPriceObjects[newCoin] = getCommonCurrenciesFromSelect();
-    console.log(coinPriceObjects);
   }
   var priceIn = getPriceIn();
   if(newCoin == priceIn){
@@ -68,12 +67,7 @@ function addRow(coin){
 }
 
 function lookupCoinLongName(coinApiName){
-  /*var coinLongName = coinLongNames[coinApiName]
-  return coinLongNames[coinApiName];
-  */
-  var longName = $('form select.coin option[value="' + coinApiName + '"]').html();
-  console.log(longName);
-  return longName;
+  return $('form select.coin option[value="' + coinApiName + '"]').html();
 }
 
 function hideCoinInSelect(newCoin){
@@ -124,9 +118,9 @@ $('form').on('change', 'select.priceIn', function(event){
 });
 
 function refreshPrices(){
-    lookupAllPricesAndDisplayThemInRows(function(){
-      updateTotals();
-    });
+  lookupAllPricesAndDisplayThemInRows(function(){
+    updateTotals();
+  });
 }
 
 function lookupAllPricesAndDisplayThemInRows(callbackUpdateTotals){  /* sample multi query: https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,DASH,ZEC&tsyms=USD,EUR */
@@ -167,12 +161,10 @@ function mergeMultiReturnedData(multiReturnedData){
       coinPriceObjects[coin][priceIn] = price;
     }
   }
-  console.log('mergeMultiReturnedData coinPriceObjects is');
-  console.log(coinPriceObjects);
 }
 
 /* WHEN QTY IS CHAGGED */
-$('table').on('keyup', 'input.qty', function(event){
+$('table').on('keyup click', 'input.qty', function(event){
   event.preventDefault();
   event.stopPropagation();
   var thisRow = $(this).closest('.asset');
@@ -220,21 +212,11 @@ function getQty(row){
 
 function getPrice(row){
   var coin = getCoinFromRow(row);
-  console.log('getPrice coinPriceObjects');
-  console.log(coinPriceObjects)
   var priceIn = getPriceIn();
   if(coin === priceIn){ return 1;}
-  console.log('getPrice priceIn');
-  console.log(priceIn);
   var priceIn;
   var pricesForThisCoin = coinPriceObjects[coin];
-  console.log("getPrice(row) pricesForThisCoin:")
-  console.log(pricesForThisCoin);
-  console.log("getPrice coinPriceObjects[coin]");
-  console.log(coinPriceObjects[coin]);
   price = pricesForThisCoin[priceIn];
-    console.log("getPrice price");
-  console.log(price);
   return price;
 }
 
@@ -250,8 +232,6 @@ $('form').on('click', '#refresh', function(event){
   event.preventDefault();
   event.stopPropagation();
   //zeroOutCoinPriceObjects();
-  console.log('refresh listening event coinPriceObjects');
-  console.log(coinPriceObjects);
   refreshPrices();
 })
 
