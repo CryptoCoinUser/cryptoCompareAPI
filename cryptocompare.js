@@ -1,43 +1,50 @@
-console.log('coinPriceObjects TODO: get common currencies from select');
-var coinPriceObjects = { 
-  BTC: { USD: 0, EUR: 0, ETH: 0, DASH:0, ZEC: 0},
-  ETH: { USD: 0, EUR: 0, BTC: 0, DASH:0, ZEC: 0},
-  DASH:{ USD: 0, EUR: 0, BTC: 0, ETH: 0, ZEC: 0},
-  ZEC: { USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:0}
-};  
+var coinPriceObjects = {};
+
+function setCoins(){
+  $('form select.coin option').each(function(index, option){
+    var coinApiName = option.value;
+    if (coinApiName === 'Add Coin'){return;} 
+    coinPriceObjects[coinApiName] = {}; 
+  });
+}
+setCoins();
+setCommonCurrencies();
 
 function getCommonCurrenciesFromSelect(){
-
+  var commonCurrenciesWithPricesZeroedOut = {};
+  $('form select.priceIn option').each(function(index, option){
+    var priceIn = option.value;
+    commonCurrenciesWithPricesZeroedOut[priceIn] = 0;
+  });
+  return commonCurrenciesWithPricesZeroedOut;
 }
 
-var coinLongNames = {
-  BTC: 'Bitcoin',
-  ETH: 'Ethereum',
-  DASH:'DASH',
-  ZEC: 'ZCash'
+function setCommonCurrencies(){
+  var commonCurrenciesWithPricesZeroedOut = getCommonCurrenciesFromSelect();
+  for(coin in coinPriceObjects){
+    coinPriceObjects[coin] = commonCurrenciesWithPricesZeroedOut;
+  }
 }
 
 /* WHEN A NEW COIN IS ADDED */
 $('form').on('change', 'select.coin', function(event){
-  //get coin
-  var newCoin = $('table').find('select.coin option:selected').val();
-  if(newCoin != 'Add Coin'){
-    addRow(newCoin); // add row; later, add price via callback
-    hideCoinInSelect(newCoin);
-    var priceIn = getPriceIn($('form'));
-    // TODO: setInterval to refresh or update on change in qty
-    if(!coinPriceObjects[newCoin]){
-      coinPriceObjects[newCoin] = { USD: 0, EUR: 0, BTC: 0, ETH: 0, DASH:0, ZEC: 0};
-    }
-    var priceIn = getPriceIn($(this).closest('form'));
-    if(newCoin == priceIn){
-      lastObject[returnedPriceIn] = 1;
-      displayPriceOfNewCoin(1);
-    }
-    var commonCurrenciesArray = Object.keys(coinPriceObjects[newCoin]);
-    var queryObject = { fsym: newCoin, tsymsArray: commonCurrenciesArray}
-    getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
-  } // end if newCoin != 'Add Coin'
+  var newCoin = $('table').find('select.coin option:selected').val();   //get coin
+  if(newCoin === 'Add Coin'){ return;}
+  addRow(newCoin); // add row; later, add price via callback
+  hideCoinInSelect(newCoin);
+  var priceIn = getPriceIn();
+  if(!coinPriceObjects[newCoin]){
+    coinPriceObjects[newCoin] = getCommonCurrenciesFromSelect();
+    console.log(coinPriceObjects);
+  }
+  var priceIn = getPriceIn();
+  if(newCoin == priceIn){
+    lastObject[returnedPriceIn] = 1;
+    displayPriceOfNewCoin(1);
+  }
+  var commonCurrenciesArray = Object.keys(coinPriceObjects[newCoin]);
+  var queryObject = {fsym: newCoin, tsymsArray: commonCurrenciesArray}
+  getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
 });
 
 function updateNewCoinPrice(newCoin, returnedData){
@@ -46,13 +53,13 @@ function updateNewCoinPrice(newCoin, returnedData){
 }
 
 function displayPriceOfNewCoin(priceObject){
-  var priceIn = getPriceIn('form');
-  var wantedPrice = priceObject[priceIn];
-  $('.asset:last-child').find('.price').html(wantedPrice.toFixed(2));  
+  var priceIn = getPriceIn();
+  var price = priceObject[priceIn];
+  $('.asset:last-child').find('.price').html(price.toFixed(2));  
 }
 
 function addRow(coin){
-  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete" title="Delete this coin">X</a></td><td class="qty"><input class="qty" type="text" size="7" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
+  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete" title="Delete this coin">X</a></td><td class="qty"><input class="qty" type="number" size="7" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
   newRow.find('.asset').addClass(coin);   //add class to row
   var coinLongName = lookupCoinLongName(coin);  //add long coin name
   newRow.find('.coin').prepend(coinLongName);   
@@ -61,8 +68,12 @@ function addRow(coin){
 }
 
 function lookupCoinLongName(coinApiName){
-  var coinLongName = coinLongNames[coinApiName]
+  /*var coinLongName = coinLongNames[coinApiName]
   return coinLongNames[coinApiName];
+  */
+  var longName = $('form select.coin option[value="' + coinApiName + '"]').html();
+  console.log(longName);
+  return longName;
 }
 
 function hideCoinInSelect(newCoin){
@@ -98,94 +109,46 @@ function getCoinFromRow(row){
   return coin;
 }
 
-function getPriceIn(form){
+function getPriceIn(){
   var priceIn = $('form').find('select.priceIn option:selected').val();
+  console.log('getPriceIn priceIn');
+  console.log(priceIn);
   return priceIn;
 }
-
-function lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, callbackUpdateTotal){
-  var price;
-  if(coinPriceObjects[coin][priceIn]){
-    price = coinPriceObjects[coin][priceIn];
-    $(htmlRow).find('.price').html(price);
-    callbackUpdateTotal();
-  } else if(coin == priceIn){ // API returns only {} for fsym=BTC&tsyms=BTC, instead of {"BTC": 1}
-     $(htmlRow).find('.price').html(1);
-     coinPriceObjects[coin][priceIn] = 1;
-  } else{ 
-    console.log('lookupPriceAndDisplayItInRow else called');
-    var commonCurrenciesArray = Object.keys(coinPriceObjects[coin]);
-    if(commonCurrenciesArray.indexOf(priceIn) === -1){ /*  */
-      commonCurrenciesArray.push(priceIn);
-    }
-    console.log(commonCurrenciesArray);
-  	var queryObject = { fsym: coin,	tsymsArray: [commonCurrenciesArray]} 
-  	getDataFromApi(queryObject, extractPriceAndDisplayItInRow);
-  	function extractPriceAndDisplayItInRow(returnedData){
-      console.log('extractPriceAndDisplayItInRow returnedData');
-      console.log(returnedData);
-      coinPriceObjects[coin] = returnedData
-      callbackUpdateTotal();
-    }
-  }
-}
-
+ 
 /* WHEN PriceIn IS CHANGED */
 $('form').on('change', 'select.priceIn', function(event){
   if($('form .asset')){
-    refreshPrices();
-    /*updateTotals();*/ 
+    updateTotals();
   }
 });
 
 function refreshPrices(){
-  var useMulti = true;
-  if(useMulti){
-    console.log('refreshPrices using Multi API BASE_URL to lookup all rows of added coins in a single call');
     lookupAllPricesAndDisplayThemInRows(function(){
       updateTotals();
     });
-  }else{
-    var priceIn = getPriceIn($('form'));
-    $('form .asset').each(function(rowNumber){
-      var htmlRow = $('form .asset')[rowNumber];
-      var coin = getCoinFromRow(htmlRow);
-      lookupPriceAndDisplayItInRow(coin, priceIn, htmlRow, rowNumber, function(){
-        updateTotal(htmlRow);
-      });
-    }) 
-    updateGrandTotal();
-  } // end else
 }
-/*
-var sampleMultiQueryObject = {
-  fsyms: ['BTC', 'ETH', 'DASH', 'ZEC'],
-  tsyms: ['USD', 'EUR']
-};
 
-getMultiDataFromApi(sampleMultiQueryObject, mergeMultiReturnedData);
-*/
-function lookupAllPricesAndDisplayThemInRows(callbackUpdateTotals){
-  /* https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,DASH,ZEC&tsyms=USD,EUR */
+function lookupAllPricesAndDisplayThemInRows(callbackUpdateTotals){  /* sample multi query: https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,DASH,ZEC&tsyms=USD,EUR */
   var addedCoins = [];
-  var priceIn = getPriceIn($('form'));
+  var priceIn = getPriceIn();
   $('form .asset').each(function(rowNumber){
     var htmlRow = $('form .asset')[rowNumber];
     var coin = getCoinFromRow(htmlRow);
     addedCoins.push(coin);
   });
-  console.log('lookupAllPricesAndDisplayThemInRows TODO: get commonCurrenciesArray from select');
-  var commonCurrenciesArray = Object.keys(coinPriceObjects["BTC"]);
-  if(commonCurrenciesArray.indexOf(priceIn) === -1){ /*  */
+  var commonCurrenciesArray = Object.keys(getCommonCurrenciesFromSelect());
+  console.log('commonCurrenciesArray');
+  console.log(commonCurrenciesArray);
+  if(commonCurrenciesArray.indexOf(priceIn) === -1){  
     commonCurrenciesArray.push(priceIn);
   }
   var multiQueryObject = {
     fsyms: addedCoins, 
     tsyms: commonCurrenciesArray
   };
-
-    getMultiDataFromApi(multiQueryObject, mergeMultiReturnedData);
-    callbackUpdateTotals();
+  getMultiDataFromApi(multiQueryObject, mergeMultiReturnedData);
+  callbackUpdateTotals();
 }
 
 function getMultiDataFromApi(multiQueryObject, callback) {
@@ -193,32 +156,19 @@ function getMultiDataFromApi(multiQueryObject, callback) {
   var queryObject = { fsyms: multiQueryObject.fsyms.toString(),
                 tsyms: multiQueryObject.tsyms.toString()       
               };
-              console.log('getMultiDataFromApi');
-              console.log(multiQueryObject.fsyms);
-              console.log(multiQueryObject.tsyms);
   $.getJSON(BASE_URL, queryObject, callback);
 }
 
 function mergeMultiReturnedData(multiReturnedData){
-  console.log('mergeMultiReturnedData');
-  console.log(multiReturnedData);
-  var coinsToMergeArray = Object.keys(multiReturnedData);
-  for (var i = 0; i < coinsToMergeArray.length; i++){
-    var coin = coinsToMergeArray[i];
+  for(coin in multiReturnedData){
     var coinReturnedPrices = multiReturnedData[coin];
-    console.log('coinReturnedPrices');
-    console.log(coinReturnedPrices);
-    var coinReturnedPriceInsArray = Object.keys(coinReturnedPrices);
-    var price;
-    var priceIn;
-    for(var j = 0; j < coinReturnedPriceInsArray.length; j++){
-      priceIn = coinReturnedPriceInsArray[j];
-      price = multiReturnedData[coin][priceIn];
+    for(priceIn in coinReturnedPrices){
+      price = coinReturnedPrices[priceIn];
       coinPriceObjects[coin][priceIn] = price;
     }
-    
   }
-  //coinPriceObjects = multiReturnedData;
+  console.log('mergeMultiReturnedData coinPriceObjects is');
+  console.log(coinPriceObjects);
 }
 
 /* WHEN QTY IS CHAGGED */
@@ -241,6 +191,8 @@ function updateGrandTotal(){ // without re-calculating each row's total
 }
 
 function updateTotal(row){
+  console.log('updateTotal(row) coinPriceObjects');
+  console.log(coinPriceObjects);
   var qty = getQty(row);
   var price = getPrice(row);
   var total = (qty * price).toFixed(2);
@@ -249,6 +201,8 @@ function updateTotal(row){
 }
 
 function updateTotals(){ // including grandTotal
+  console.log('updateTotals coinPriceObjects');
+  console.log(coinPriceObjects);
   var grandTotal = 0;
   $('form .asset').each(function(rowNumber){
     var htmlRow = $('form .asset')[rowNumber];
@@ -263,23 +217,27 @@ function getQty(row){
   var qty = $(row).find('input.qty').val();
   return qty;
 }
-function getPrice(row){
-  console.log('getPrice TODO: get price from coinPriceObject for current priceIn');
-  var coin = getCoinFromRow(row);
-  var priceIn = getPriceIn($('form'));
-  var price;
-  if(coin === priceIn){
-    price = 1;
-  } else {
-      var pricesForThisCoin = coinPriceObjects[coin];
-      price = pricesForThisCoin[priceIn];
-  }
 
-  /*
-  var price = $(row).find('td.price').html()
-  */
+function getPrice(row){
+  var coin = getCoinFromRow(row);
+  console.log('getPrice coinPriceObjects');
+  console.log(coinPriceObjects)
+  var priceIn = getPriceIn();
+  if(coin === priceIn){ return 1;}
+  console.log('getPrice priceIn');
+  console.log(priceIn);
+  var priceIn;
+  var pricesForThisCoin = coinPriceObjects[coin];
+  console.log("getPrice(row) pricesForThisCoin:")
+  console.log(pricesForThisCoin);
+  console.log("getPrice coinPriceObjects[coin]");
+  console.log(coinPriceObjects[coin]);
+  price = pricesForThisCoin[priceIn];
+    console.log("getPrice price");
+  console.log(price);
   return price;
 }
+
 function getTotal(row){
   var total = $(row).find('.total').html();
   if(!total){
@@ -291,22 +249,17 @@ function getTotal(row){
 $('form').on('click', '#refresh', function(event){
   event.preventDefault();
   event.stopPropagation();
-  zeroOutCoinPriceObjects();
+  //zeroOutCoinPriceObjects();
+  console.log('refresh listening event coinPriceObjects');
+  console.log(coinPriceObjects);
   refreshPrices();
 })
 
 function zeroOutCoinPriceObjects(){
-  //console.log('zeroOutCoinPriceObjects')
-  coinsToZeroOutArray = Object.keys(coinPriceObjects);
-  //console.log('coinsToZeroOut.length');
-  //console.log(coinsToZeroOutArray.length);
-  for(var i = 0; i < coinsToZeroOutArray.length; i++){
-    var thisCoinsPriceIns = coinPriceObjects[coinsToZeroOutArray[i]];
-    //console.log('thisCoinsPriceIns');
-    //console.log(thisCoinsPriceIns);
-    var priceInsToZeroOutArray = Object.keys(thisCoinsPriceIns);
-    for(var j = 0; j < priceInsToZeroOutArray.length; j++){
-      coinPriceObjects[coinsToZeroOutArray[i]][priceInsToZeroOutArray[j]] = 0;
+  for(coin in coinPriceObjects){
+    var thisCoinsPriceIns = coinPriceObjects[coin];
+    for(priceIn in thisCoinsPriceIns){
+      coinPriceObjects[coin][priceIn] = 0;
     }
   }
 }
