@@ -76,8 +76,14 @@ function lookupCoinLongName(coinApiName){
 function hideCoinInSelect(newCoin){
   $('form').find('select.coin option[value="' + newCoin + '"]').prop("disabled", true);
   $('form').find('select.coin option[value="' + newCoin + '"]').css("display", "none");
+  if( ($('.asset').length + 2) > ($('select.coin option').length) ) {
+    $('select.coin option:selected').prop("selected", false);
+    $('select.coin').prop("disabled", true);
+  }
 }
+
 function unhideCoinInSelect(deletedCoin){
+  $('select.coin').prop("disabled", false);
   $('table thead').find('select.coin option[value="' + deletedCoin + '"]').prop("disabled", false);
   $('table thead').find('select.coin option[value="' + deletedCoin + '"]').css("display", "block");
 }

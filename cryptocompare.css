@@ -29,7 +29,7 @@
   td button#refresh{}
   tfoot td.refresh{text-align: center;}
 
-  @media only screen and (max-width: 480px) { /* increase; select (no more coins); already showing USD for qty 0?*/
+  @media only screen and (max-width: 640px) { /* increase; select (no more coins); already showing USD for qty 0?*/
 
     table, thead, tbody, tfoot, th, td, tr { 
       display: block; 
