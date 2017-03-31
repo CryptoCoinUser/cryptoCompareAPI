@@ -13,7 +13,6 @@
   <main>
   <div class="js-ledger">
   <form onsubmit="event.preventDefault();">
-    <h2><a href="#" id="refresh">Refresh Prices</a></h2>
     <table>
       <thead>
         <tr>
@@ -43,10 +42,11 @@
           <th class="total">Total</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody></tbody>
       <tfoot>
         <tr class="grandTotalRow">
-          <td colspan="3">Grand Total:</td>
+          <td class="refresh"><button id="refresh">Refresh Prices</button></td>
+          <td colspan="2">Grand Total:</td>
           <td class="grandTotal">0</td>
         </tr>
       </tfoot>

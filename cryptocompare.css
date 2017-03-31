@@ -18,13 +18,16 @@
     padding:5px;
   }
 
-   td:last-child,
+  td:last-child,
   th:last-child{border-right:none;}
 
   td a.delete{float:right; display: block; color: #f00; font-weight: bold;
     text-decoration: none;}
-  td[colspan="3"]{text-align: right;}
+  td[colspan="2"]{text-align: right;}
   .apiName{font-style: italic; font-size: 0.8em; }
+
+  td button#refresh{}
+  tfoot td.refresh{text-align: center;}
 
   @media only screen and (max-width: 480px) {
 
@@ -65,7 +68,8 @@
     tbody td:nth-of-type(3):before { content: "Price:"; }
     tbody td:nth-of-type(4):before { content: "Total:"; }
 
-    tfoot td[colspan="3"],
+
+    tfoot td[colspan="2"],
     tfoot td{text-align: center;}
 
     }

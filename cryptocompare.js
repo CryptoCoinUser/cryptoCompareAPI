@@ -233,8 +233,13 @@ function getTotal(row){
 $('form').on('click', '#refresh', function(event){
   event.preventDefault();
   event.stopPropagation();
-  zeroOutCoinPriceObjects();
-  refreshPrices();
+  if($('tbody .asset')[0]){
+    zeroOutCoinPriceObjects();
+    refreshPrices();
+  }else{
+    console.log("nothing to refresh; first add coins");
+    return;
+  }
 })
 
 function zeroOutCoinPriceObjects(){
@@ -247,15 +252,8 @@ function zeroOutCoinPriceObjects(){
 }
 
 
-/* visualization */
-  var pieChartData = [
-    /*{"value": 100, "coin": "alpha"},
-    {"value": 70, "coin": "beta"},
-    {"value": 40, "coin": "gamma"},
-    {"value": 15, "coin": "delta"},
-    {"value": 5, "coin": "epsilon"},
-    {"value": 1, "coin": "zeta"} */
-  ]
+/* visualization with d3plus.org */
+  var pieChartData = [];
 
 function addToPieChartData(coin){
   var coinLongName = lookupCoinLongName(coin);
@@ -276,8 +274,6 @@ function updatePieChartValue(coin, total){
   for(var i = 0; i < pieChartData.length; i++){
     if(pieChartData[i]["coin"] === coin){
       pieChartData[i]["value"] = Number(total);
-      // console.log('updatePieChartValue');
-      // console.log(pieChartData[i]);
       return;
     }
   }
