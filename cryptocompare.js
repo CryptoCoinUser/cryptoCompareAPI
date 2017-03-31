@@ -31,6 +31,7 @@ $('form').on('change', 'select.coin', function(event){
   var newCoin = $('table').find('select.coin option:selected').val();   //get coin
   if(newCoin === 'Add Coin'){ return;}
   addRow(newCoin); // add row; later, add price via callback
+  addToPieChartData(newCoin);
   hideCoinInSelect(newCoin);
   var priceIn = getPriceIn();
   if(!coinPriceObjects[newCoin]){
@@ -44,6 +45,8 @@ $('form').on('change', 'select.coin', function(event){
   var commonCurrenciesArray = Object.keys(coinPriceObjects[newCoin]);
   var queryObject = {fsym: newCoin, tsymsArray: commonCurrenciesArray}
   getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
+
+
 });
 
 function updateNewCoinPrice(newCoin, returnedData){
@@ -87,6 +90,7 @@ $('table tbody').on('click', 'a.delete', function(event){
   var NthCoin = $(this).closest('tr.asset').index();
   $(this).closest('tr.asset').remove();
   updateGrandTotal();
+  deleteFromPieChartData(coin);
 })
 
 function getDataFromApi(queryObject, callback) {
@@ -177,6 +181,7 @@ function updateGrandTotal(){ // without re-calculating each row's total
     grandTotal += total;
   })
   $('.grandTotal').html(grandTotal.toFixed(2));
+  drawPieChart();
 }
 
 function updateTotal(row){
@@ -185,7 +190,11 @@ function updateTotal(row){
   var total = (qty * price).toFixed(2);
   $(row).find('.price').html(price); // necessery when priceIn changes or for refresh, but not for qty change.
   $(row).find('.total').html(total);
+  var coin = getCoinFromRow(row);
+  updatePieChartValue(coin, total);
 }
+
+
 
 function updateTotals(){ // including grandTotal
   var grandTotal = 0;
@@ -235,6 +244,54 @@ function zeroOutCoinPriceObjects(){
       coinPriceObjects[coin][priceIn] = 0;
     }
   }
+}
+
+
+/* visualization */
+  var pieChartData = [
+    /*{"value": 100, "coin": "alpha"},
+    {"value": 70, "coin": "beta"},
+    {"value": 40, "coin": "gamma"},
+    {"value": 15, "coin": "delta"},
+    {"value": 5, "coin": "epsilon"},
+    {"value": 1, "coin": "zeta"} */
+  ]
+
+function addToPieChartData(coin){
+  //var coinLongName = lookupCoinLongName(coin);
+  var coinValueObject = {"coin": coin, "value": 0};
+  pieChartData.push(coinValueObject);
+}
+
+function deleteFromPieChartData(coin){
+  for(var i = 0; i < pieChartData.length; i++){
+    if(pieChartData[i]["coin"] === coin){
+      pieChartData.splice(i,1);
+      return;
+    }
+  }
+}
+
+function updatePieChartValue(coin, total){
+  for(var i = 0; i < pieChartData.length; i++){
+    if(pieChartData[i]["coin"] === coin){
+      pieChartData[i]["value"] = Number(total);
+      // console.log('updatePieChartValue');
+      // console.log(pieChartData[i]);
+      return;
+    }
+  }
+}
+
+function drawPieChart(){
+  $('#viz').html('');
+  d3plus.viz()
+    .container("#viz")
+    .data(pieChartData)
+    .type("pie")
+    .id("coin")
+    .size("value")
+    .draw()
 }
 
 
