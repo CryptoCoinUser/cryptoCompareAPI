@@ -11,7 +11,7 @@
   tbody{background-color: #eee;}
   tbody tr:nth-child(odd){background-color: #ccc;}
   thead{background-color: orange;}
-  tfoot{background-color: orange;}
+  tfoot{background-color: orange; border-top:1px solid #fff;}
 
   th, td{ border-right: 1px solid #fff;
     vertical-align: text-top;
