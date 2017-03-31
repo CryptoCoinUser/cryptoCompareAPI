@@ -258,8 +258,8 @@ function zeroOutCoinPriceObjects(){
   ]
 
 function addToPieChartData(coin){
-  //var coinLongName = lookupCoinLongName(coin);
-  var coinValueObject = {"coin": coin, "value": 0};
+  var coinLongName = lookupCoinLongName(coin);
+  var coinValueObject = {"coin": coin, "coinLongName": coinLongName, "value": 0};
   pieChartData.push(coinValueObject);
 }
 
@@ -288,8 +288,8 @@ function drawPieChart(){
   d3plus.viz()
     .container("#viz")
     .data(pieChartData)
-    .type("pie")
-    .id("coin")
+    .type("tree_map") //.type("pie")
+    .id("coinLongName")
     .size("value")
     .draw()
 }

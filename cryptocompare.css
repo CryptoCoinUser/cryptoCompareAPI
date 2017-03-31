@@ -5,17 +5,23 @@
   form section{margin-bottom: 2em;}
   button{font-size:22px;}
 
-  table{font-size:150%;}
+  table{font-size:150%; 
+    width:100%; 
+    border-collapse: collapse;}
   tbody{background-color: #eee;}
   tbody tr:nth-child(odd){background-color: #ccc;}
   thead{background-color: orange;}
   tfoot{background-color: orange;}
 
-  th, td{
+  th, td{ border-right: 1px solid #fff;
     vertical-align: text-top;
     padding:5px;
   }
-  td a.delete{float:right; display: block; color: #f00;
+
+   td:last-child,
+  th:last-child{border-right:none;}
+
+  td a.delete{float:right; display: block; color: #f00; font-weight: bold;
     text-decoration: none;}
   td[colspan="3"]{text-align: right;}
   .apiName{font-style: italic; font-size: 0.8em; }
