@@ -121,7 +121,7 @@ function refreshPrices(){
   });
 }
 
-function lookupAllPricesAndDisplayThemInRows(callbackUpdateTotals){  /* sample multi query: https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,DASH,ZEC&tsyms=USD,EUR */
+function lookupAllPricesAndDisplayThemInRows(){  /* sample multi query: https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,DASH,ZEC&tsyms=USD,EUR */
   var addedCoins = [];
   var priceIn = getPriceIn();
   $('form .asset').each(function(rowNumber){
@@ -138,7 +138,7 @@ function lookupAllPricesAndDisplayThemInRows(callbackUpdateTotals){  /* sample m
     tsyms: commonCurrenciesArray
   };
   getMultiDataFromApi(multiQueryObject, mergeMultiReturnedData);
-  callbackUpdateTotals();
+//  callbackUpdateTotals();
 }
 
 function getMultiDataFromApi(multiQueryObject, callback) {
@@ -157,6 +157,7 @@ function mergeMultiReturnedData(multiReturnedData){
       coinPriceObjects[coin][priceIn] = price;
     }
   }
+  updateTotals();
 }
 
 /* WHEN QTY IS CHAGGED */
@@ -223,7 +224,7 @@ function getTotal(row){
 $('form').on('click', '#refresh', function(event){
   event.preventDefault();
   event.stopPropagation();
-  //zeroOutCoinPriceObjects();
+  zeroOutCoinPriceObjects();
   refreshPrices();
 })
 
