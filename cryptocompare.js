@@ -291,6 +291,7 @@ function drawPieChart(){
     .type("tree_map") //.type("pie")
     .id("coinLongName")
     .size("value")
+    .labels({"align": "left", "valign": "top"})
     .draw()
 }
 
