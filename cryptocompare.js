@@ -61,7 +61,7 @@ function displayPriceOfNewCoin(priceObject){
 }
 
 function addRow(coin){
-  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete" title="Delete this coin">X</a></td><td class="qty"><input class="qty" type="number" size="7" value="0"></td><td class="price">0</td><td class="total">0</td></tr>');
+  var newRow = $('<tr class="asset"><td class="coin"> <span class="apiName"></span> <a href="#" class="delete" title="Delete this coin">X</a></td><td class="qty"><input class="qty" type="number" size="7" value="0"></td><td class="price">0</td><td class="total">0.00</td></tr>');
   newRow.find('.asset').addClass(coin);   //add class to row
   var coinLongName = lookupCoinLongName(coin);  //add long coin name
   newRow.find('.coin').prepend(coinLongName);   
@@ -120,6 +120,7 @@ function getPriceIn(){
  
 /* WHEN PriceIn IS CHANGED */
 $('form').on('change', 'select.priceIn', function(event){
+  $('.grandTotalRow span.priceIn').html("(" + getPriceIn() + ")");
   if($('form .asset')){
     updateTotals();
   }
@@ -187,7 +188,9 @@ function updateGrandTotal(){ // without re-calculating each row's total
     grandTotal += total;
   })
   $('.grandTotal').html(grandTotal.toFixed(2));
-  drawPieChart();
+  if(grandTotal > 0){
+      drawPieChart();
+    }
 }
 
 function updateTotal(row){

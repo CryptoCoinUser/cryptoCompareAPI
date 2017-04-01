@@ -27,7 +27,7 @@
             </select>
           </th>
           <th class="qty">Qty</th>
-          <th class="priceIn">Price of a Coin in
+          <th class="priceIn">Price each coin in
              <select class="priceIn">
               <option value="USD" selected>USD</option>
               <option value="EUR">EUR</option>
@@ -46,8 +46,8 @@
       <tfoot>
         <tr class="grandTotalRow">
           <td class="refresh"><button id="refresh">Refresh Prices</button></td>
-          <td colspan="2">Grand Total:</td>
-          <td class="grandTotal">0</td>
+          <td colspan="2">Grand Total <span class="priceIn"></span>:</td>
+          <td class="grandTotal">0.00</td>
         </tr>
       </tfoot>
     </table>

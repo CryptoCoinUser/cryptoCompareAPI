@@ -28,8 +28,12 @@
 
   td button#refresh{}
   tfoot td.refresh{text-align: center;}
+  tfoot td.grandTotal{text-align: right;}
+  td.price,
+  td.total{text-align: right;}
+  /*td.price::after{content: " USD";}*/
 
-  @media only screen and (max-width: 640px) { /* increase; select (no more coins); already showing USD for qty 0?*/
+  @media only screen and (max-width: 640px) { 
 
     table, thead, tbody, tfoot, th, td, tr { 
       display: block; 
