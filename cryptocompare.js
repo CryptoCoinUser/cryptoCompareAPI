@@ -44,10 +44,19 @@ $('form').on('change', 'select.coin', function(event){
   }
   var commonCurrenciesArray = Object.keys(coinPriceObjects[newCoin]);
   var queryObject = {fsym: newCoin, tsymsArray: commonCurrenciesArray}
+  //getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
   getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
 
+  const getNewCoinPrices = new Promise((resolve,reject) => {
+    getDataFromApi(queryObject, resolve, reject);
+  });
 
-});
+  getNewCoinPrices.then((data) => {
+    updateNewCoinPrice(newCoin, data);
+  });
+
+
+}); // end when a new coin is added
 
 function updateNewCoinPrice(newCoin, returnedData){
   coinPriceObjects[newCoin] = returnedData;
@@ -99,12 +108,18 @@ $('table tbody').on('click', 'a.delete', function(event){
   deleteFromPieChartData(coin);
 })
 
-function getDataFromApi(queryObject, callback) {
+function getDataFromApi(queryObject, resolve, reject) {
   var BASE_URL = 'https://min-api.cryptocompare.com/data/price';
   var query = { fsym: queryObject.fsym,
                 tsyms: queryObject.tsymsArray.toString()       
               };
-  $.getJSON(BASE_URL, query, callback);
+  $.getJSON(BASE_URL, query, function(data){
+    if(data.Response === "Error"){
+      reject(data.Message);
+    }else{
+      resolve(data);
+    }
+  });
 }
 
 function getCoinFromRow(row){
@@ -148,16 +163,27 @@ function lookupAllPricesAndDisplayThemInRows(){  /* sample multi query: https://
     fsyms: addedCoins, 
     tsyms: commonCurrenciesArray
   };
-  getMultiDataFromApi(multiQueryObject, mergeMultiReturnedData);
-//  callbackUpdateTotals();
+  const getMultiCoinPrices = new Promise((resolve,reject) => {
+    getMultiDataFromApi(multiQueryObject, resolve, reject);
+  });
+
+  getMultiCoinPrices.then((data) => {
+    mergeMultiReturnedData(data);
+  });
 }
 
-function getMultiDataFromApi(multiQueryObject, callback) {
+function getMultiDataFromApi(multiQueryObject, resolve, reject) {
   var BASE_URL = 'https://min-api.cryptocompare.com/data/pricemulti';
   var queryObject = { fsyms: multiQueryObject.fsyms.toString(),
                 tsyms: multiQueryObject.tsyms.toString()       
               };
-  $.getJSON(BASE_URL, queryObject, callback);
+  $.getJSON(BASE_URL, queryObject, function(data){
+    if(data.Response === "Error"){
+      reject(data.Message);
+    }else{
+      resolve(data);
+    }
+  });
 }
 
 function mergeMultiReturnedData(multiReturnedData){
