@@ -31,7 +31,6 @@
   tfoot td.grandTotal{text-align: right;}
   td.price,
   td.total{text-align: right;}
-  /*td.price::after{content: " USD";}*/
 
   @media only screen and (max-width: 640px) { 
 
