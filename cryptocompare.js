@@ -44,8 +44,6 @@ $('form').on('change', 'select.coin', function(event){
   }
   var commonCurrenciesArray = Object.keys(coinPriceObjects[newCoin]);
   var queryObject = {fsym: newCoin, tsymsArray: commonCurrenciesArray}
-  //getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
-  getDataFromApi(queryObject, updateNewCoinPrice.bind(null, newCoin));
 
   const getNewCoinPrices = new Promise((resolve,reject) => {
     getDataFromApi(queryObject, resolve, reject);
